@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-GIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.git2"
-GIT_WORK_TREE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec git --git-dir="$GIT_DIR" --work-tree="$GIT_WORK_TREE" "$@"
