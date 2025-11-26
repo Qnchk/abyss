@@ -30,7 +30,8 @@ import "./App.css";
 declare global {
   interface Window {
     MathJax?: {
-      typesetPromise?: () => Promise<void>;
+      startup?: { promise?: Promise<unknown> };
+      typesetPromise?: (elements?: any) => Promise<void>;
     };
   }
 }

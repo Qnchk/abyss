@@ -77,13 +77,13 @@ function extractErrorMessage(text: string): string {
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers || {}),
+    ...(options.headers as Record<string, string> | undefined),
   };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
   
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
