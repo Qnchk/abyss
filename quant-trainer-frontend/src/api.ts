@@ -38,12 +38,10 @@ export interface Question {
     solved_by_company?: Record<string, number>;
   }
   
-// выбираем бекенд: в проде нужен HTTPS, иначе GitHub Pages блокирует запросы
+// URL бекенда: можно переопределить через VITE_API_URL
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")
-    ? "https://your-backend-domain.example.com"
-    : "http://127.0.0.1:8000");
+  "http://185.125.203.120:8000";
   
   function getToken(): string | null {
     return localStorage.getItem("token");
