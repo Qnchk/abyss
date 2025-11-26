@@ -4,6 +4,7 @@ dist/
 .parcel-cache/
 .vite/
 .git2/
+.gh-pages/
 
 # python / backend
 __pycache__/
