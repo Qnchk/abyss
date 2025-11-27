@@ -589,7 +589,7 @@ const App: React.FC = () => {
       <div className="app auth-screen">
         <div className="auth-card">
           <h1>Abyss</h1>
-          <p className="auth-subtitle">Тренажёр по задачам из quant_questions.json</p>
+          <p className="auth-subtitle">Quant Training</p>
 
           <div className="auth-tabs">
             <button
