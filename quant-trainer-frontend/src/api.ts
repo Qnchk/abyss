@@ -39,10 +39,10 @@ export interface Stats {
   solved_by_company?: Record<string, number>;
 }
 
-// Public backend URL (ngrok tunnel); can be overridden via VITE_API_URL
+// Public backend URL: override via VITE_API_URL; fallback — локальный dev
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  "https://c70f815ce8ca.ngrok-free.app";
+  "http://127.0.0.1:8000";
 
 function getToken(): string | null {
   return localStorage.getItem("token");
