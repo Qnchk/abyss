@@ -39,53 +39,13 @@ export interface Stats {
   solved_by_company?: Record<string, number>;
 }
 
-// Public backend URL: override via VITE_API_URL; fallback — локальный dev
-const RAW_API_URL =
-  (import.meta.env.VITE_API_URL as string | undefined) ||
-  "https://db88b87123f6.ngrok-free.app";
+// Базовый адрес бекенда: можно переопределить через VITE_API_URL, по умолчанию — локальный dev.
+const API_URL = ((import.meta.env.VITE_API_URL as string | undefined) || "http://127.0.0.1:8000")
+  .trim()
+  .replace(/\/+$/, "");
 
-let cachedApiUrl: string | null = null;
-let cachedApiUrlError: Error | null = null;
-
-// Для бесплатного ngrok нужно пробрасывать этот header, иначе возвращается HTML-страница предупреждения
-const NGROK_SKIP_HEADER = { "ngrok-skip-browser-warning": "true" };
-
-function getApiBaseUrl(): string {
-  if (cachedApiUrl) return cachedApiUrl;
-  if (cachedApiUrlError) throw cachedApiUrlError;
-
-  const raw = (RAW_API_URL || "").trim();
-  if (!raw) {
-    cachedApiUrlError = new Error(
-      "Не задан адрес бекенда. Укажи VITE_API_URL вида https://<subdomain>.ngrok-free.app"
-    );
-    throw cachedApiUrlError;
-  }
-
-  try {
-    const url = new URL(raw);
-    if (!["http:", "https:"].includes(url.protocol)) {
-      throw new Error(
-        `Недопустимый протокол в VITE_API_URL (${url.protocol}). Используй http или https.`
-      );
-    }
-    cachedApiUrl = raw.replace(/\/+$/, "");
-    return cachedApiUrl;
-  } catch {
-    const message = `Некорректный адрес бекенда: "${raw}". Укажи полный URL с http(s), например https://example.ngrok-free.app.`;
-    cachedApiUrlError = new Error(message);
-    throw cachedApiUrlError;
-  }
-}
-
-// Показываем фактический base URL в консоли (и в проде), чтобы сразу видеть, что берётся
-try {
-  // eslint-disable-next-line no-console
-  console.info("[quant-trainer] API base URL:", getApiBaseUrl());
-} catch (err) {
-  // eslint-disable-next-line no-console
-  console.error("[quant-trainer] Ошибка разбора API base URL:", err);
-}
+// eslint-disable-next-line no-console
+console.info("[quant-trainer] API base URL:", API_URL);
 
 function getToken(): string | null {
   return localStorage.getItem("token");
@@ -150,15 +110,13 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...NGROK_SKIP_HEADER,
     ...(options.headers as Record<string, string> | undefined),
   };
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const baseUrl = getApiBaseUrl();
-  const url = `${baseUrl}${path}`;
+  const url = `${API_URL}${path}`;
   const res = await fetch(url, {
     ...options,
     headers,
@@ -179,12 +137,10 @@ export async function login(username: string, password: string): Promise<void> {
   formData.append("username", username);
   formData.append("password", password);
 
-  const baseUrl = getApiBaseUrl();
-  const url = `${baseUrl}/auth/login`;
+  const url = `${API_URL}/auth/login`;
   const res = await fetch(url, {
     method: "POST",
-    body: formData,
-    headers: NGROK_SKIP_HEADER,
+    body: formData
   });
 
   const data = await ensureJson<{ access_token: string }>(res, url);
@@ -207,12 +163,11 @@ export async function fetchQuestions(params: {
   search?: string;
   only_unsolved?: boolean;
 } = {}): Promise<Question[]> {
-  const base = getApiBaseUrl();
   let url: URL;
   try {
-    url = new URL(`${base}/questions`);
+    url = new URL(`${API_URL}/questions`);
   } catch (err: any) {
-    const msg = `Не удалось собрать URL для /questions. base="${base}". ${err?.message || err}`;
+    const msg = `Не удалось собрать URL для /questions. base="${API_URL}". ${err?.message || err}`;
     // eslint-disable-next-line no-console
     console.error(msg);
     throw new Error(msg);
@@ -228,7 +183,6 @@ export async function fetchQuestions(params: {
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  Object.assign(headers as Record<string, string>, NGROK_SKIP_HEADER);
 
   const res = await fetch(url.toString(), { headers });
   return ensureJson<Question[]>(res, url.toString());
