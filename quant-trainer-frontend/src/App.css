@@ -1071,18 +1071,61 @@ body {
 @media (max-width: 640px) {
   .topbar {
     padding-inline: 1rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
   .topbar-left h1 {
     font-size: 1.05rem;
   }
+  .topbar-subtitle {
+    font-size: 0.75rem;
+  }
+  .topbar-right {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .topbar-right button {
+    flex: 1 1 auto;
+    min-width: 120px;
+    text-align: center;
+  }
   .sidebar {
     padding-inline: 1rem;
+    padding-top: 0.75rem;
   }
   .main-content {
     padding-inline: 1rem;
   }
   .auth-card {
     padding-inline: 1.75rem;
+  }
+  .sidebar-toggle-container {
+    left: 0.75rem;
+    top: 0.5rem;
+  }
+  .layout {
+    gap: 0.75rem;
+  }
+  .questions-list h2,
+  .question-detail h2,
+  .stats-header h2 {
+    font-size: 1rem;
+  }
+  .question-actions button,
+  .btn-success,
+  .btn-secondary,
+  .btn-training {
+    width: 100%;
+  }
+  .training-actions-primary {
+    flex-direction: column;
+  }
+  .stats-kpis {
+    grid-template-columns: 1fr;
+  }
+  .stats-charts {
+    grid-template-columns: 1fr;
   }
 }
 
