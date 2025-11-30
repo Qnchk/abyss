@@ -136,6 +136,8 @@ const App: React.FC = () => {
   const [showHint, setShowHint] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [answerInput, setAnswerInput] = useState("");
+  const [answerCheck, setAnswerCheck] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   // -------- Training mode state --------
@@ -146,6 +148,8 @@ const App: React.FC = () => {
   const [trainingShowHint, setTrainingShowHint] = useState(false);
   const [trainingShowSolution, setTrainingShowSolution] = useState(false);
   const [trainingShowAnswer, setTrainingShowAnswer] = useState(false);
+  const [trainingAnswerInput, setTrainingAnswerInput] = useState("");
+  const [trainingAnswerCheck, setTrainingAnswerCheck] = useState<string | null>(null);
   const [trainingInfoMessage, setTrainingInfoMessage] = useState<string | null>(null);
   const [showTopicPicker, setShowTopicPicker] = useState(false);
   const [showTagPicker, setShowTagPicker] = useState(false);
@@ -410,6 +414,8 @@ const App: React.FC = () => {
     setShowHint(false);
     setShowSolution(false);
     setShowAnswer(false);
+    setAnswerInput("");
+    setAnswerCheck(null);
     setInfoMessage(null);
   }
 
@@ -440,6 +446,14 @@ const App: React.FC = () => {
     } catch (err: any) {
       setInfoMessage(`Ошибка при сохранении прогресса: ${err.message}`);
     }
+  }
+
+  function checkAnswer(input: string, correct?: string | null): string {
+    if (!correct) return "Нет ответа для проверки";
+    const norm = (s: string) => s.trim().toLowerCase();
+    return norm(input) === norm(correct)
+      ? "Ответ совпадает"
+      : "Ответ не совпадает";
   }
 
   // -------- Training mode: выбор вопроса и таймер --------
@@ -551,6 +565,8 @@ const App: React.FC = () => {
     setTrainingShowHint(false);
     setTrainingShowSolution(false);
     setTrainingShowAnswer(false);
+    setTrainingAnswerInput("");
+    setTrainingAnswerCheck(null);
     setTrainingInfoMessage(null);
   }
 
@@ -1255,6 +1271,42 @@ const App: React.FC = () => {
                       </button>
                     </div>
 
+                    <div className="answer-input-block">
+                      <label>
+                        Введи свой ответ
+                        <input
+                          value={answerInput}
+                          onChange={(e) => {
+                            setAnswerInput(e.target.value);
+                            setAnswerCheck(null);
+                          }}
+                          placeholder="Твой вариант ответа"
+                        />
+                      </label>
+                      <div className="answer-actions">
+                        <button
+                          className="btn-secondary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAnswerCheck(checkAnswer(answerInput, selectedQuestion.answer));
+                          }}
+                        >
+                          Проверить
+                        </button>
+                        <button
+                          className="btn-secondary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAnswerInput("");
+                            setAnswerCheck(null);
+                          }}
+                        >
+                          Очистить
+                        </button>
+                      </div>
+                      {answerCheck && <div className="answer-check">{answerCheck}</div>}
+                    </div>
+
                     {showHint && selectedQuestion.hint && (
                       <div className="reveal-block">
                         <h4>Подсказка</h4>
@@ -1356,6 +1408,46 @@ const App: React.FC = () => {
                     text={trainingQuestion.task_text}
                     className="question-text training-question-text"
                   />
+
+                  <div className="answer-input-block">
+                    <label>
+                      Введи свой ответ
+                      <input
+                        value={trainingAnswerInput}
+                        onChange={(e) => {
+                          setTrainingAnswerInput(e.target.value);
+                          setTrainingAnswerCheck(null);
+                        }}
+                        placeholder="Твой вариант ответа"
+                      />
+                    </label>
+                    <div className="answer-actions">
+                      <button
+                        className="btn-secondary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTrainingAnswerCheck(
+                            checkAnswer(trainingAnswerInput, trainingQuestion.answer)
+                          );
+                        }}
+                      >
+                        Проверить
+                      </button>
+                      <button
+                        className="btn-secondary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTrainingAnswerInput("");
+                          setTrainingAnswerCheck(null);
+                        }}
+                      >
+                        Очистить
+                      </button>
+                    </div>
+                    {trainingAnswerCheck && (
+                      <div className="answer-check">{trainingAnswerCheck}</div>
+                    )}
+                  </div>
 
                   <div className="training-actions-primary">
                     <button
