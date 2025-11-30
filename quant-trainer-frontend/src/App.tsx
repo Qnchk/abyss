@@ -37,6 +37,7 @@ declare global {
 }
 
 type ViewMode = "questions" | "stats" | "training";
+type Lang = "ru" | "en";
 
 interface Filters {
   difficulty: string;
@@ -118,6 +119,103 @@ const QuestionText: React.FC<{
 });
 QuestionText.displayName = "QuestionText";
 
+const translations: Record<Lang, Record<string, string>> = {
+  ru: {
+    appTitle: "Abyss",
+    authSubtitle: "Quant Training",
+    loginTab: "Вход",
+    registerTab: "Регистрация",
+    username: "Логин",
+    password: "Пароль",
+    loginAction: "Войти",
+    registerAction: "Создать аккаунт",
+    filters: "Фильтры",
+    searchPlaceholder: "по названию или тексту задачи",
+    difficulty: "Сложность",
+    all: "Все",
+    topics: "Топики",
+    tags: "Теги",
+    onlyUnsolved: "Только нерешённые",
+    resetFilters: "Сбросить фильтры",
+    questions: "Задачи",
+    selectQuestion: "Выбери задачу слева.",
+    hintShow: "Показать подсказку",
+    hintHide: "Скрыть подсказку",
+    solutionShow: "Показать решение",
+    solutionHide: "Скрыть решение",
+    answerShow: "Показать краткий ответ",
+    answerHide: "Скрыть краткий ответ",
+    enterAnswer: "Введи свой ответ",
+    check: "Проверить",
+    clear: "Очистить",
+    answerMatch: "Ответ совпадает",
+    answerMismatch: "Ответ не совпадает",
+    hintTitle: "Подсказка",
+    solutionTitle: "Решение",
+    answerTitle: "Ответ",
+    markSolved: "Отметить как решённую",
+    saveAttempt: "Сохранить попытку",
+    training: "Training mode",
+    trainingSubtitle: "Случайная задача (приоритет — нерешённые)",
+    noTraining: "Нет задач для тренировки.",
+    time: "Время",
+    solved: "Задача решена → следующая",
+    skip: "Пропустить / попытка → следующая",
+    exit: "Выйти из тренировки",
+    statsTitle: "Подробная статистика",
+    resetProgress: "Сбросить прогресс",
+    filtersLabel: "Фильтры:",
+    companies: "Компании",
+  },
+  en: {
+    appTitle: "Abyss",
+    authSubtitle: "Quant Training",
+    loginTab: "Login",
+    registerTab: "Sign up",
+    username: "Username",
+    password: "Password",
+    loginAction: "Login",
+    registerAction: "Create account",
+    filters: "Filters",
+    searchPlaceholder: "by title or task text",
+    difficulty: "Difficulty",
+    all: "All",
+    topics: "Topics",
+    tags: "Tags",
+    onlyUnsolved: "Only unsolved",
+    resetFilters: "Reset filters",
+    questions: "Questions",
+    selectQuestion: "Pick a task on the left.",
+    hintShow: "Show hint",
+    hintHide: "Hide hint",
+    solutionShow: "Show solution",
+    solutionHide: "Hide solution",
+    answerShow: "Show short answer",
+    answerHide: "Hide short answer",
+    enterAnswer: "Enter your answer",
+    check: "Check",
+    clear: "Clear",
+    answerMatch: "Answer matches",
+    answerMismatch: "Answer does not match",
+    hintTitle: "Hint",
+    solutionTitle: "Solution",
+    answerTitle: "Answer",
+    markSolved: "Mark as solved",
+    saveAttempt: "Save attempt",
+    training: "Training mode",
+    trainingSubtitle: "Random task (unsolved prioritized)",
+    noTraining: "No tasks for training.",
+    time: "Time",
+    solved: "Solved → next",
+    skip: "Skip / attempt → next",
+    exit: "Exit training",
+    statsTitle: "Detailed stats",
+    resetProgress: "Reset progress",
+    filtersLabel: "Filters:",
+    companies: "Companies",
+  },
+};
+
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -155,11 +253,17 @@ const App: React.FC = () => {
   const [showTagPicker, setShowTagPicker] = useState(false);
   const [resettingProgress, setResettingProgress] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [language, setLanguage] = useState<Lang>(() => {
+    const saved = localStorage.getItem("lang");
+    return saved === "en" || saved === "ru" ? (saved as Lang) : "ru";
+  });
   const [recentSolvedId, setRecentSolvedId] = useState<number | null>(null);
   const solvedPulseTimer = React.useRef<number | null>(null);
   const mathJaxTimer = React.useRef<number | null>(null);
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
   const confettiTimer = React.useRef<number | null>(null);
+
+  const t = useMemo(() => translations[language], [language]);
 
   function scheduleMathJax() {
     if (mathJaxTimer.current) {
@@ -604,27 +708,27 @@ const App: React.FC = () => {
     return (
       <div className="app auth-screen">
         <div className="auth-card">
-          <h1>Abyss</h1>
-          <p className="auth-subtitle">Quant Training</p>
+          <h1>{t.appTitle}</h1>
+          <p className="auth-subtitle">{t.authSubtitle}</p>
 
           <div className="auth-tabs">
             <button
               className={authMode === "login" ? "active" : ""}
               onClick={() => setAuthMode("login")}
             >
-              Вход
+              {t.loginTab}
             </button>
             <button
               className={authMode === "register" ? "active" : ""}
               onClick={() => setAuthMode("register")}
             >
-              Регистрация
+              {t.registerTab}
             </button>
           </div>
 
           <form onSubmit={handleAuthSubmit} className="auth-form">
             <label>
-              Логин
+              {t.username}
               <input
                 value={authUsername}
                 onChange={(e) => setAuthUsername(e.target.value)}
@@ -632,7 +736,7 @@ const App: React.FC = () => {
               />
             </label>
             <label>
-              Пароль
+              {t.password}
               <input
                 type="password"
                 value={authPassword}
@@ -642,7 +746,7 @@ const App: React.FC = () => {
             </label>
             {authError && <div className="auth-error">{authError}</div>}
             <button type="submit" disabled={loading}>
-              {loading ? "..." : authMode === "login" ? "Войти" : "Создать аккаунт"}
+              {loading ? "..." : authMode === "login" ? t.loginAction : t.registerAction}
             </button>
           </form>
         </div>
@@ -655,7 +759,7 @@ const App: React.FC = () => {
     <div className="app">
       <header className="topbar">
         <div className="topbar-left">
-          <h1>Abyss</h1>
+          <h1>{t.appTitle}</h1>
           <span className="topbar-subtitle">
             {stats
               ? `Решено: ${stats.solved_questions}/${stats.total_questions}`
@@ -677,6 +781,26 @@ const App: React.FC = () => {
         </div>
         <div className="topbar-right">
           <span className="topbar-user">@{user.username}</span>
+          <div className="lang-toggle">
+            <button
+              className={language === "ru" ? "active" : ""}
+              onClick={() => {
+                setLanguage("ru");
+                localStorage.setItem("lang", "ru");
+              }}
+            >
+              RU
+            </button>
+            <button
+              className={language === "en" ? "active" : ""}
+              onClick={() => {
+                setLanguage("en");
+                localStorage.setItem("lang", "en");
+              }}
+            >
+              EN
+            </button>
+          </div>
           <a
             className="icon-button"
             href="https://t.me/my_abyss31"
@@ -710,7 +834,7 @@ const App: React.FC = () => {
             }}
             className={view === "questions" ? "active" : ""}
           >
-            Задачи
+            {t.questions}
           </button>
           <button
             onClick={() => {
@@ -718,7 +842,7 @@ const App: React.FC = () => {
             }}
             className={view === "training" ? "active" : ""}
           >
-            Тренировка
+            {t.training}
           </button>
           <button
             onClick={() => {
@@ -727,10 +851,10 @@ const App: React.FC = () => {
             }}
             className={view === "stats" ? "active" : ""}
           >
-            Статистика
+            {t.statsTitle}
           </button>
           <button className="logout-btn" onClick={handleLogout}>
-            Выйти
+            Logout
           </button>
         </div>
       </header>
@@ -767,21 +891,21 @@ const App: React.FC = () => {
         {/* Сайдбар */}
         <aside className={"sidebar" + (sidebarCollapsed ? " collapsed" : "")}>
           <section className="card">
-            <h2>Фильтры</h2>
+            <h2>{t.filters}</h2>
 
             <label>
-              Поиск
+              {t.filters}
               <input
                 value={filters.search}
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, search: e.target.value }))
                 }
-                placeholder="по названию или тексту задачи"
+                placeholder={t.searchPlaceholder}
               />
             </label>
 
             <div className="filter-block">
-              <div className="filter-label">Сложность</div>
+              <div className="filter-label">{t.difficulty}</div>
               <div className="difficulty-chips">
                 <button
                   className={
@@ -791,7 +915,7 @@ const App: React.FC = () => {
                     setFilters((prev) => ({ ...prev, difficulty: "" }))
                   }
                 >
-                  Все
+                  {t.all}
                 </button>
                 {uniqueDifficulties.map((d) => (
                   <button
@@ -814,7 +938,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="filter-block">
-              <div className="filter-label">Топики</div>
+              <div className="filter-label">{t.topics}</div>
               <div className="tag-picker">
                 <button
                   type="button"
@@ -880,7 +1004,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="filter-block">
-              <div className="filter-label">Теги</div>
+              <div className="filter-label">{t.tags}</div>
               <div className="tag-picker">
                 <button
                   type="button"
@@ -945,19 +1069,19 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={filters.onlyUnsolved}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    onlyUnsolved: e.target.checked,
-                  }))
-                }
-              />
-              Только нерешённые
-            </label>
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={filters.onlyUnsolved}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      onlyUnsolved: e.target.checked,
+                    }))
+                  }
+                />
+                {t.onlyUnsolved}
+              </label>
 
             <div className="filter-actions">
               <button
@@ -967,7 +1091,7 @@ const App: React.FC = () => {
                   setShowTagPicker(false);
                 }}
               >
-                Сбросить фильтры
+                {t.resetFilters}
               </button>
             </div>
           </section>
@@ -1015,7 +1139,7 @@ const App: React.FC = () => {
             <div className="questions-layout">
               <section className="card questions-list">
                 <h2>
-                  Задачи{" "}
+                  {t.questions}{" "}
                   <span className="badge">
                     {filteredQuestions.length}/{questions.length}
                   </span>
@@ -1023,7 +1147,7 @@ const App: React.FC = () => {
 
                 {hasActiveFilters && (
                   <div className="active-filters">
-                    <span className="active-filters-label">Фильтры:</span>
+                    <span className="active-filters-label">{t.filtersLabel}</span>
                     {filters.difficulty && (
                       <button
                         className="active-filter-chip"
@@ -1031,7 +1155,7 @@ const App: React.FC = () => {
                           setFilters((prev) => ({ ...prev, difficulty: "" }))
                         }
                       >
-                        Сложность: {filters.difficulty} <span>×</span>
+                        {t.difficulty}: {filters.difficulty} <span>×</span>
                       </button>
                     )}
                     {filters.topics.map((t) => (
@@ -1055,21 +1179,21 @@ const App: React.FC = () => {
                           setFilters((prev) => ({ ...prev, company: "" }))
                         }
                       >
-                        Фонд: {filters.company} <span>×</span>
+                        {t.companies}: {filters.company} <span>×</span>
                       </button>
                     )}
-                    {filters.tags.map((t) => (
+                    {filters.tags.map((tagVal) => (
                       <button
-                        key={t}
+                        key={tagVal}
                         className="active-filter-chip"
                         onClick={() =>
                           setFilters((prev) => ({
                             ...prev,
-                            tags: prev.tags.filter((x) => x !== t),
+                            tags: prev.tags.filter((x) => x !== tagVal),
                           }))
                         }
                       >
-                        Тег: {t} <span>×</span>
+                        {t.tags}: {tagVal} <span>×</span>
                       </button>
                     ))}
                     {filters.onlyUnsolved && (
@@ -1225,30 +1349,30 @@ const App: React.FC = () => {
               </section>
 
               <section className="card question-detail">
-                <h2>Детали задачи</h2>
-                {!selectedQuestion && <p>Выбери задачу слева.</p>}
+                <h2>{t.questions}</h2>
+                {!selectedQuestion && <p>{t.selectQuestion}</p>}
 
                 {selectedQuestion && (
                   <div className="question-body">
                     <h3>
-                      {selectedQuestion.title || `Задача #${selectedQuestion.id}`}
+                    {selectedQuestion.title || `Задача #${selectedQuestion.id}`}
                     </h3>
 
                     <div className="question-tags">
                       {selectedQuestion.difficulty && (
                         <span className="chip chip-difficulty">
-                          Сложность: {selectedQuestion.difficulty}
+                          {t.difficulty}: {selectedQuestion.difficulty}
                         </span>
                       )}
                       {selectedQuestion.topic && (
                         <span className="chip chip-topic">
-                          Топик: {selectedQuestion.topic}
+                          {t.topics}: {selectedQuestion.topic}
                         </span>
                       )}
                       {selectedQuestion.companies &&
                         selectedQuestion.companies.length > 0 && (
                           <span className="chip">
-                            Компании: {selectedQuestion.companies.join(", ")}
+                            {t.companies}: {selectedQuestion.companies.join(", ")}
                           </span>
                         )}
                     </div>
@@ -1261,26 +1385,26 @@ const App: React.FC = () => {
 
                     <div className="question-actions">
                       <button onClick={() => setShowHint((v) => !v)}>
-                        {showHint ? "Скрыть подсказку" : "Показать подсказку"}
+                        {showHint ? t.hintHide : t.hintShow}
                       </button>
                       <button onClick={() => setShowSolution((v) => !v)}>
-                        {showSolution ? "Скрыть решение" : "Показать решение"}
+                        {showSolution ? t.solutionHide : t.solutionShow}
                       </button>
                       <button onClick={() => setShowAnswer((v) => !v)}>
-                        {showAnswer ? "Скрыть краткий ответ" : "Показать краткий ответ"}
+                        {showAnswer ? t.answerHide : t.answerShow}
                       </button>
                     </div>
 
                     <div className="answer-input-block">
                       <label>
-                        Введи свой ответ
+                        {t.enterAnswer}
                         <input
                           value={answerInput}
                           onChange={(e) => {
                             setAnswerInput(e.target.value);
                             setAnswerCheck(null);
                           }}
-                          placeholder="Твой вариант ответа"
+                          placeholder={t.enterAnswer}
                         />
                       </label>
                       <div className="answer-actions">
@@ -1291,7 +1415,7 @@ const App: React.FC = () => {
                             setAnswerCheck(checkAnswer(answerInput, selectedQuestion.answer));
                           }}
                         >
-                          Проверить
+                          {t.check}
                         </button>
                         <button
                           className="btn-secondary"
@@ -1301,15 +1425,19 @@ const App: React.FC = () => {
                             setAnswerCheck(null);
                           }}
                         >
-                          Очистить
+                          {t.clear}
                         </button>
                       </div>
-                      {answerCheck && <div className="answer-check">{answerCheck}</div>}
+                      {answerCheck && (
+                        <div className="answer-check">
+                          {answerCheck === "Ответ совпадает" ? t.answerMatch : t.answerMismatch}
+                        </div>
+                      )}
                     </div>
 
                     {showHint && selectedQuestion.hint && (
                       <div className="reveal-block">
-                        <h4>Подсказка</h4>
+                        <h4>{t.hintTitle}</h4>
                         <QuestionText
                           text={selectedQuestion.hint}
                           className="formatted-text-wrapper"
@@ -1320,7 +1448,7 @@ const App: React.FC = () => {
 
                     {showSolution && selectedQuestion.solution && (
                       <div className="reveal-block">
-                        <h4>Решение</h4>
+                        <h4>{t.solutionTitle}</h4>
                         <QuestionText
                           text={selectedQuestion.solution}
                           className="formatted-text-wrapper"
@@ -1331,7 +1459,7 @@ const App: React.FC = () => {
 
                     {showAnswer && selectedQuestion.answer && (
                       <div className="reveal-block">
-                        <h4>Ответ</h4>
+                        <h4>{t.answerTitle}</h4>
                         <QuestionText
                           text={selectedQuestion.answer}
                           className="formatted-text-wrapper"
@@ -1345,13 +1473,13 @@ const App: React.FC = () => {
                         className="btn-success"
                         onClick={() => handleMarkSolved(true)}
                       >
-                        Отметить как решённую
+                        {t.markSolved}
                       </button>
                       <button
                         className="btn-secondary"
                         onClick={() => handleMarkSolved(false)}
                       >
-                        Сохранить попытку
+                        {t.saveAttempt}
                       </button>
                       {infoMessage && (
                         <div className="info-message">{infoMessage}</div>
@@ -1411,14 +1539,14 @@ const App: React.FC = () => {
 
                   <div className="answer-input-block">
                     <label>
-                      Введи свой ответ
+                      {t.enterAnswer}
                       <input
                         value={trainingAnswerInput}
                         onChange={(e) => {
                           setTrainingAnswerInput(e.target.value);
                           setTrainingAnswerCheck(null);
                         }}
-                        placeholder="Твой вариант ответа"
+                        placeholder={t.enterAnswer}
                       />
                     </label>
                     <div className="answer-actions">
@@ -1431,7 +1559,7 @@ const App: React.FC = () => {
                           );
                         }}
                       >
-                        Проверить
+                        {t.check}
                       </button>
                       <button
                         className="btn-secondary"
@@ -1441,44 +1569,42 @@ const App: React.FC = () => {
                           setTrainingAnswerCheck(null);
                         }}
                       >
-                        Очистить
+                        {t.clear}
                       </button>
                     </div>
                     {trainingAnswerCheck && (
-                      <div className="answer-check">{trainingAnswerCheck}</div>
+                      <div className="answer-check">
+                        {trainingAnswerCheck === "Ответ совпадает"
+                          ? t.answerMatch
+                          : t.answerMismatch}
+                      </div>
                     )}
                   </div>
 
                   <div className="training-actions-primary">
                     <button
                       className="btn-training"
-                      onClick={() =>
-                        setTrainingShowHint((prev) => !prev)
-                      }
+                      onClick={() => setTrainingShowHint((prev) => !prev)}
                     >
-                      {trainingShowHint ? "Скрыть подсказку" : "Подсказка"}
+                      {trainingShowHint ? t.hintHide : t.hintShow}
                     </button>
                     <button
                       className="btn-training"
-                      onClick={() =>
-                        setTrainingShowSolution((prev) => !prev)
-                      }
+                      onClick={() => setTrainingShowSolution((prev) => !prev)}
                     >
-                      {trainingShowSolution ? "Скрыть решение" : "Решение"}
+                      {trainingShowSolution ? t.solutionHide : t.solutionShow}
                     </button>
                     <button
                       className="btn-training"
-                      onClick={() =>
-                        setTrainingShowAnswer((prev) => !prev)
-                      }
+                      onClick={() => setTrainingShowAnswer((prev) => !prev)}
                     >
-                      {trainingShowAnswer ? "Скрыть ответ" : "Ответ"}
+                      {trainingShowAnswer ? t.answerHide : t.answerShow}
                     </button>
                   </div>
 
                   {trainingShowHint && trainingQuestion.hint && (
                     <div className="reveal-block">
-                      <h4>Подсказка</h4>
+                      <h4>{t.hintTitle}</h4>
                       <QuestionText
                         text={trainingQuestion.hint}
                         className="formatted-text-wrapper"
@@ -1489,7 +1615,7 @@ const App: React.FC = () => {
 
                   {trainingShowSolution && trainingQuestion.solution && (
                     <div className="reveal-block">
-                      <h4>Решение</h4>
+                      <h4>{t.solutionTitle}</h4>
                       <QuestionText
                         text={trainingQuestion.solution}
                         className="formatted-text-wrapper"
@@ -1500,7 +1626,7 @@ const App: React.FC = () => {
 
                   {trainingShowAnswer && trainingQuestion.answer && (
                     <div className="reveal-block">
-                      <h4>Ответ</h4>
+                      <h4>{t.answerTitle}</h4>
                       <QuestionText
                         text={trainingQuestion.answer}
                         className="formatted-text-wrapper"
@@ -1514,19 +1640,19 @@ const App: React.FC = () => {
                       className="btn-success training-btn-wide"
                       onClick={() => void handleTrainingMark(true)}
                     >
-                      Задача решена → следующая
+                      {t.solved}
                     </button>
                     <button
                       className="btn-secondary training-btn-wide"
                       onClick={() => void handleTrainingMark(false)}
                     >
-                      Пропустить / попытка → следующая
+                      {t.skip}
                     </button>
                     <button
                       className="btn-secondary training-exit-btn"
                       onClick={stopTrainingSession}
                     >
-                      Выйти из тренировки
+                      {t.exit}
                     </button>
                     {trainingInfoMessage && (
                       <div className="info-message training-info">
@@ -1542,13 +1668,13 @@ const App: React.FC = () => {
           {view === "stats" && (
             <section className="card stats-page">
               <div className="stats-header">
-                <h2>Подробная статистика</h2>
+                <h2>{t.statsTitle}</h2>
                 <button
                   className="btn-secondary reset-progress-btn"
                   onClick={() => void handleResetProgress()}
                   disabled={resettingProgress}
                 >
-                  {resettingProgress ? "Сброс..." : "Сбросить прогресс"}
+                  {resettingProgress ? "Сброс..." : t.resetProgress}
                 </button>
               </div>
               {stats ? (
