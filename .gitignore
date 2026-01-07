@@ -1,0 +1,28 @@
+# node / frontend
+node_modules/
+dist/
+.parcel-cache/
+.vite/
+.git2/
+.gh-pages/
+
+# python / backend
+__pycache__/
+*.pyc
+.venv/
+env/
+venv/
+
+# env / secrets
+.env
+.env.*
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# misc
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
